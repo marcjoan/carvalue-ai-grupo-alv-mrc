@@ -14,9 +14,13 @@ def cargar_modelo():
 
 
 def predecir_precio(datos: dict, estado: str) -> float:
-    """TODO B1: insertar condition, construir DataFrame, invocar predict()."""
+    """B1: insertar condition, construir DataFrame, invocar predict()."""
     if estado not in ESTADOS:
         raise ValueError("Estado visual no válido para el modelo.")
-    # TODO B1: crea registro con condition; DataFrame de 1 fila con COLUMNAS_MODELO
-    # TODO B1: carga el pipeline joblib y llama a .predict(entrada)[0]
-    raise NotImplementedError("Completa predecir_precio")
+
+    registro = {**datos, "condition": estado}
+    entrada = pd.DataFrame([registro], columns=COLUMNAS_MODELO)
+
+    modelo = cargar_modelo()
+    precio = modelo.predict(entrada)[0]
+    return float(precio)
