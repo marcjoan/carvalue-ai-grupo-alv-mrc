@@ -18,9 +18,11 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "5001:5000"
     environment:
       DATABASE_URL: postgresql+psycopg://carvalue:${POSTGRES_PASSWORD:-carvalue_local_only}@db:5432/carvalue
+      COHERE_API_KEY: ${COHERE_API_KEY:-}
+      VISION_MOCK: ${VISION_MOCK:-1}
       # TODO A1: anade COHERE_API_KEY y VISION_MOCK leyendo .env
       # COHERE_API_KEY: ...
       # VISION_MOCK: ...
@@ -40,6 +42,7 @@ services:
     environment:
       # TODO A2: configura JUPYTER_TOKEN desde .env
       # JUPYTER_TOKEN: ...
+      JUPYTER_TOKEN: ${JUPYTER_TOKEN:-carvalue123}
       DATABASE_URL: postgresql+psycopg://carvalue:${POSTGRES_PASSWORD:-carvalue_local_only}@db:5432/carvalue
     depends_on:
       db:
