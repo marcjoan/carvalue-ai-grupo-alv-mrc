@@ -1,17 +1,155 @@
 {% extends "base.html" %}
 {% block contenido %}
+<style>
+  .tasar-hero { text-align: center; margin-bottom: 1.5rem; }
+  .tasar-hero h2 { margin-bottom: .25rem; font-size: 1.8rem; }
+  .tasar-hero p { color: #666; margin-top: 0; }
+ 
+  .tasar-form fieldset {
+    border: 1px solid #e3e6ea; border-radius: 12px;
+    padding: 1.25rem 1.25rem .5rem; margin: 0 0 1.25rem;
+    background: #fafbfc;
+  }
+  .tasar-form legend { font-weight: 700; padding: 0 .5rem; font-size: 1.05rem; }
+ 
+  .tasar-grid {
+    display: grid; gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .campo { display: flex; flex-direction: column; gap: .35rem; margin-bottom: .75rem; }
+  .campo label { font-weight: 600; font-size: .95rem; }
+  .campo select, .campo input[type="number"] {
+    padding: .65rem .75rem; border: 1px solid #cfd4da; border-radius: 8px;
+    font-size: 1rem; background: #fff; transition: border-color .15s, box-shadow .15s;
+  }
+  .campo select:focus, .campo input:focus {
+    outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+  }
+  .campo .hint { font-size: .8rem; color: #777; }
+ 
+  .zona-foto {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: .5rem; padding: 1.5rem; border: 2px dashed #b8c0ca; border-radius: 12px;
+    background: #fff; cursor: pointer; text-align: center; transition: border-color .15s, background .15s;
+  }
+  .zona-foto:hover { border-color: #2563eb; background: #f5f8ff; }
+  .zona-foto .icono { font-size: 2.5rem; line-height: 1; }
+  .zona-foto input[type="file"] { max-width: 100%; }
+  #preview { display: none; max-width: 100%; max-height: 260px; border-radius: 10px; margin-top: .75rem; object-fit: cover; }
+ 
+  .info-estado {
+    display: flex; gap: .6rem; align-items: flex-start;
+    background: #eef6ff; border-left: 4px solid #2563eb; border-radius: 8px;
+    padding: .75rem 1rem; font-size: .9rem; margin-bottom: 1.25rem;
+  }
+ 
+  .btn-tasar {
+    width: 100%; padding: .9rem; font-size: 1.1rem; font-weight: 700;
+    border: none; border-radius: 10px; cursor: pointer; color: #fff;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    box-shadow: 0 4px 12px rgba(37,99,235,.25); transition: transform .1s, box-shadow .15s;
+  }
+  .btn-tasar:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37,99,235,.35); }
+</style>
+ 
 <section class="card">
-  <h2>Estimar el precio de un coche usado</h2>
-  <p>Indica sus características y adjunta una fotografía exterior para estimar su estado.</p>
-  {% if error %}<p class="alert">{{ error }}</p>{% endif %}
-
-  {# TODO C2: ESCRIBID VOSOTROS EL FORMULARIO HTML COMPLETO.
-     No hay formulario de ejemplo resuelto en este archivo.
-     Consultad GUIA_ALUMNADO.md, etapa 4, y docs/CONTRATO_COMPONENTES.md.
-     Requisitos: POST /tasar, multipart, seis campos, foto, botón enviar.
-     Los select se rellenan a partir de opciones.marcas/combustibles/tipos/transmisiones.
-     Las categorías de estado NO son seleccionables por el usuario.
-  #}
-
+  <div class="tasar-hero">
+    <h2>🚗 Estimar el precio de un coche usado</h2>
+    <p>Indica sus características y adjunta una fotografía exterior para estimar su estado.</p>
+  </div>
+ 
+  {% if error %}<p class="alert">⚠️ {{ error }}</p>{% endif %}
+ 
+  <form class="tasar-form" action="/tasar" method="post" enctype="multipart/form-data">
+ 
+    <fieldset>
+      <legend>📋 Datos del vehículo</legend>
+      <div class="tasar-grid">
+ 
+        <div class="campo">
+          <label for="manufacturer">🏭 Marca</label>
+          <select id="manufacturer" name="manufacturer" required>
+            <option value="" disabled selected>Elige una marca</option>
+            {% for marca in opciones.marcas %}
+              <option value="{{ marca }}">{{ marca|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+ 
+        <div class="campo">
+          <label for="year">📅 Año</label>
+          <input id="year" name="year" type="number" min="1995" max="2021" step="1" placeholder="Ej. 2016" required>
+          <span class="hint">Entre 1995 y 2021.</span>
+        </div>
+ 
+        <div class="campo">
+          <label for="odometer">🛣️ Kilometraje (millas)</label>
+          <input id="odometer" name="odometer" type="number" min="1000" max="250000" step="1" placeholder="Ej. 80000" required>
+          <span class="hint">Entre 1.000 y 250.000 millas.</span>
+        </div>
+ 
+        <div class="campo">
+          <label for="fuel">⛽ Combustible</label>
+          <select id="fuel" name="fuel" required>
+            <option value="" disabled selected>Elige un combustible</option>
+            {% for combustible in opciones.combustibles %}
+              <option value="{{ combustible }}">{{ combustible|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+ 
+        <div class="campo">
+          <label for="type">🚙 Tipo de carrocería</label>
+          <select id="type" name="type" required>
+            <option value="" disabled selected>Elige un tipo</option>
+            {% for tipo in opciones.tipos %}
+              <option value="{{ tipo }}">{{ tipo|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+ 
+        <div class="campo">
+          <label for="transmission">⚙️ Transmisión</label>
+          <select id="transmission" name="transmission" required>
+            <option value="" disabled selected>Elige una transmisión</option>
+            {% for transmision in opciones.transmisiones %}
+              <option value="{{ transmision }}">{{ transmision|capitalize }}</option>
+            {% endfor %}
+          </select>
+        </div>
+ 
+      </div>
+    </fieldset>
+ 
+    <fieldset>
+      <legend>📸 Fotografía exterior</legend>
+      <label class="zona-foto" for="foto">
+        <span class="icono">🖼️</span>
+        <strong>Haz clic para seleccionar una foto del coche</strong>
+        <span class="hint">JPG, PNG o WEBP</span>
+        <input id="foto" name="foto" type="file"
+               accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required>
+        <img id="preview" alt="Vista previa de la foto">
+      </label>
+    </fieldset>
+ 
+    <div class="info-estado">
+      <span>🤖</span>
+      <span>No tienes que indicar el <strong>estado</strong> del coche: se obtiene automáticamente analizando la fotografía.</span>
+    </div>
+ 
+    <button class="btn-tasar" type="submit">💰 Tasar coche</button>
+  </form>
 </section>
+ 
+<script>
+  // Vista previa de la foto seleccionada (solo visual, no afecta al envío)
+  document.getElementById("foto").addEventListener("change", function () {
+    const preview = document.getElementById("preview");
+    const archivo = this.files && this.files[0];
+    if (!archivo) { preview.style.display = "none"; return; }
+    preview.src = URL.createObjectURL(archivo);
+    preview.style.display = "block";
+  });
+</script>
 {% endblock %}

@@ -1,12 +1,72 @@
 {% extends "base.html" %}
 {% block contenido %}
+<style>
+  .res-hero { text-align: center; margin-bottom: 1.25rem; }
+  .res-hero h2 { margin-bottom: .25rem; }
+  .res-id { display: inline-block; background: #eef2f7; color: #444; border-radius: 999px; padding: .2rem .8rem; font-size: .85rem; font-weight: 600; }
+ 
+  .res-precio {
+    text-align: center; margin: 1.25rem 0; padding: 1.5rem 1rem; border-radius: 14px; color: #fff;
+    background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 6px 18px rgba(22,163,74,.25);
+  }
+  .res-precio .etiqueta { font-size: .9rem; opacity: .9; text-transform: uppercase; letter-spacing: .05em; }
+  .res-precio .valor { font-size: 2.6rem; font-weight: 800; line-height: 1.2; }
+  .res-precio .nota { font-size: .8rem; opacity: .85; }
+ 
+  .res-grid { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 1.25rem; }
+  .res-dato { background: #fafbfc; border: 1px solid #e3e6ea; border-radius: 10px; padding: .75rem 1rem; }
+  .res-dato .k { font-size: .8rem; color: #777; }
+  .res-dato .v { font-size: 1.05rem; font-weight: 700; }
+ 
+  .res-estado { border: 1px solid #e3e6ea; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+  .res-estado h3 { margin: 0 0 .5rem; font-size: 1.05rem; }
+  .badge { display: inline-block; padding: .25rem .75rem; border-radius: 999px; font-weight: 700; font-size: .9rem; }
+  .badge-estado { background: #dbeafe; color: #1e40af; }
+  .badge-mock { background: #fef3c7; color: #92400e; }
+  .badge-cohere { background: #ede9fe; color: #5b21b6; }
+  .res-razon { margin: .75rem 0 0; color: #444; font-style: italic; }
+ 
+  .res-volver {
+    display: block; text-align: center; padding: .85rem; border-radius: 10px; font-weight: 700;
+    text-decoration: none; color: #fff; background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  }
+  .res-volver:hover { opacity: .92; }
+  .res-links { text-align: center; margin-top: .75rem; font-size: .9rem; }
+</style>
+ 
 <section class="card">
-  <h2>Resultado de la tasación</h2>
-  {# TODO C3: DISEÑAD EL BLOQUE DE RESULTADOS (HTML + Jinja2).
-     Deben aparecer: id, marca y año, precio orientativo USD, estado externo,
-     motivo corto y origen de la clasificación: MOCK o COHERE.
-     Incluir enlace a / para volver a tasar.
-     Las variables disponibles están en docs/CONTRATO_COMPONENTES.md.
-  #}
+  <div class="res-hero">
+    <h2>✅ Resultado de la tasación</h2>
+    <span class="res-id">Tasación nº {{ identificador }}</span>
+  </div>
+ 
+  <div class="res-precio">
+    <div class="etiqueta">Precio orientativo</div>
+    <div class="valor">${{ "{:,.2f}".format(precio) }} USD</div>
+    <div class="nota">Estimación del modelo de ML a partir de los datos y del estado detectado.</div>
+  </div>
+ 
+  <div class="res-grid">
+    <div class="res-dato"><div class="k">🏭 Marca</div><div class="v">{{ datos.manufacturer|capitalize }}</div></div>
+    <div class="res-dato"><div class="k">📅 Año</div><div class="v">{{ datos.year }}</div></div>
+    <div class="res-dato"><div class="k">🛣️ Kilometraje</div><div class="v">{{ "{:,}".format(datos.odometer) }} millas</div></div>
+    <div class="res-dato"><div class="k">⛽ Combustible</div><div class="v">{{ datos.fuel|capitalize }}</div></div>
+    <div class="res-dato"><div class="k">🚙 Tipo</div><div class="v">{{ datos.type|capitalize }}</div></div>
+    <div class="res-dato"><div class="k">⚙️ Transmisión</div><div class="v">{{ datos.transmission|capitalize }}</div></div>
+  </div>
+ 
+  <div class="res-estado">
+    <h3>📸 Estado externo detectado</h3>
+    <span class="badge badge-estado">{{ estado }}</span>
+    {% if fuente == "COHERE" %}
+      <span class="badge badge-cohere">Fuente: COHERE</span>
+    {% else %}
+      <span class="badge badge-mock">Fuente: {{ fuente }}</span>
+    {% endif %}
+    <p class="res-razon">“{{ razon }}”</p>
+  </div>
+ 
+  <a class="res-volver" href="/">🔄 Tasar otro coche</a>
+  <p class="res-links"><a href="/historial">📜 Ver historial de tasaciones</a></p>
 </section>
 {% endblock %}
