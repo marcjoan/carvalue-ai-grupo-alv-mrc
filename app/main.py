@@ -21,8 +21,6 @@ def inicio():
 @app.post("/tasar")
 def tasar():
     try:
-        datos = validar_datos(request.form)
-        foto, mimetype = validar_foto(request.files.get("foto"))
 
         # TODO B2: unir vision -> modelo -> base de datos; ver CONTRATO_COMPONENTES.md
         datos = validar_datos(request.form)
