@@ -1,4 +1,4 @@
-"""PostgreSQL + SQLAlchemy: guardar y recuperar tasaciones."""
+#Codigo completado
 import os
 from datetime import datetime, timezone
 from sqlalchemy import create_engine, Integer, String, DateTime, Float, select
@@ -32,12 +32,25 @@ def crear_tablas():
 
 
 def guardar_tasacion(registro: dict) -> int:
-    """TODO A5: persistir una tasación y devolver su id."""
-    # TODO A5: Session(engine), add(), commit(), refresh() y devuelve id
-    raise NotImplementedError("Completa guardar_tasacion")
+    """A5: persistir una tasación y devolver su id."""
+    columnas = Tasacion.__table__.columns.keys()
+    datos = {k: v for k, v in registro.items() if k in columnas and k != "id"}
+
+    with Session(engine) as session:
+        tasacion = Tasacion(**datos)
+        session.add(tasacion)
+        session.commit()
+        session.refresh(tasacion)
+        return tasacion.id
+
 
 
 def obtener_ultimas_tasaciones(limite: int = 10):
-    """TODO A6: SELECT de últimas tasaciones (descendente)."""
-    # TODO A6: select(Tasacion).order_by(...).limit(limite)
-    raise NotImplementedError("Completa obtener_ultimas_tasaciones")
+    """A6: SELECT de últimas tasaciones (descendente)."""
+    consulta = (
+        select(Tasacion)
+        .order_by(Tasacion.creada_en.desc(), Tasacion.id.desc())
+        .limit(limite)
+    )
+    with Session(engine, expire_on_commit=False) as session:
+        return list(session.scalars(consulta).all())
